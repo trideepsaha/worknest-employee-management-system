@@ -1,18 +1,21 @@
 package com.worknest.service;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.worknest.dto.AttendanceReportDto;
 import com.worknest.dto.PunchInDto;
 import com.worknest.dto.PunchOutDto;
 import com.worknest.entity.Attendance;
 import com.worknest.entity.Employee;
 import com.worknest.repository.AttendanceRepository;
 import com.worknest.repository.EmployeeRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -97,5 +100,59 @@ public class AttendanceServiceImpl implements AttendanceService {
                 .orElseThrow(() -> new RuntimeException("Employee not found"));
 
         return attendanceRepository.findByEmployee(employee);
+    }
+    
+    @Override
+    public AttendanceReportDto getMonthlyReport(Long employeeId, int year, int month) {
+
+        Employee employee = employeeRepository.findById(employeeId)
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
+
+        LocalDate startDate = LocalDate.of(year, month, 1);
+        LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
+
+        List<Attendance> attendanceList =
+                attendanceRepository.findByEmployeeAndAttendanceDateBetween(
+                        employee,
+                        startDate,
+                        endDate
+                );
+
+        int presentDays = 0;
+        int halfDays = 0;
+        int absentDays = 0;
+        int lateDays = 0;
+        double totalWorkingHours = 0;
+
+        for (Attendance attendance : attendanceList) {
+
+            String status = attendance.getStatus();
+
+            if ("PRESENT".equals(status)) {
+                presentDays++;
+            } else if ("PRESENT_LATE".equals(status)) {
+                presentDays++;
+                lateDays++;
+            } else if ("HALF_DAY".equals(status)) {
+                halfDays++;
+            } else if ("ABSENT".equals(status)) {
+                absentDays++;
+            }
+
+            if (attendance.getWorkingHours() != null) {
+                totalWorkingHours += attendance.getWorkingHours();
+            }
+        }
+
+        return AttendanceReportDto.builder()
+                .employeeId(employee.getId())
+                .employeeName(employee.getFullName())
+                .totalDays(attendanceList.size())
+                .presentDays(presentDays)
+                .halfDays(halfDays)
+                .absentDays(absentDays)
+                .lateDays(lateDays)
+                .totalWorkingHours(totalWorkingHours)
+                .build();
     }
 }

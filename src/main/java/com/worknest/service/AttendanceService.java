@@ -1,5 +1,6 @@
 package com.worknest.service;
 
+import com.worknest.dto.AttendanceReportDto;
 import com.worknest.dto.PunchInDto;
 import com.worknest.dto.PunchOutDto;
 import com.worknest.entity.Attendance;
@@ -13,4 +14,6 @@ public interface AttendanceService {
     Attendance punchOut(PunchOutDto dto);
 
     List<Attendance> getEmployeeAttendance(Long employeeId);
+
+    AttendanceReportDto getMonthlyReport(Long employeeId, int year, int month);
 }
