@@ -22,6 +22,7 @@ public class LeaveServiceImpl implements LeaveService {
 
     private final LeaveRequestRepository leaveRequestRepository;
     private final LeaveBalanceRepository leaveBalanceRepository;
+    private final NotificationService notificationService;
     private final EmployeeRepository employeeRepository;
     private final LeaveTypeRepository leaveTypeRepository;
 
@@ -100,8 +101,15 @@ public class LeaveServiceImpl implements LeaveService {
         leaveRequest.setStatus("APPROVED");
         leaveRequest.setApprovedBy(manager);
         leaveRequest.setRejectionReason(null);
+        notificationService.createNotification(
+                employee.getId(),
+                "Your leave request from " + leaveRequest.getStartDate()
+                        + " to " + leaveRequest.getEndDate()
+                        + " has been approved."
+        );
 
         return leaveRequestRepository.save(leaveRequest);
+        
     }
 
     @Override
@@ -126,6 +134,13 @@ public class LeaveServiceImpl implements LeaveService {
         leaveRequest.setStatus("REJECTED");
         leaveRequest.setApprovedBy(manager);
         leaveRequest.setRejectionReason(dto.getRejectionReason());
+        notificationService.createNotification(
+                employee.getId(),
+                "Your leave request from " + leaveRequest.getStartDate()
+                        + " to " + leaveRequest.getEndDate()
+                        + " has been rejected. Reason: "
+                        + dto.getRejectionReason()
+        );
 
         return leaveRequestRepository.save(leaveRequest);
     }
