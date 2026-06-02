@@ -20,7 +20,14 @@ public class AuthController {
     @GetMapping("/redirect")
     public String redirectAfterLogin(Authentication authentication) {
 
-        String role = authentication.getAuthorities().iterator().next().getAuthority();
+        if (authentication == null) {
+            return "redirect:/login";
+        }
+
+        String role = authentication.getAuthorities()
+                .iterator()
+                .next()
+                .getAuthority();
 
         if (role.equals("ROLE_ADMIN")) {
             return "redirect:/admin/home";
@@ -28,8 +35,30 @@ public class AuthController {
             return "redirect:/hr/home";
         } else if (role.equals("ROLE_MANAGER")) {
             return "redirect:/manager/home";
-        } else {
+        } else if (role.equals("ROLE_EMPLOYEE")) {
             return "redirect:/employee/home";
         }
+
+        return "redirect:/login";
+    }
+
+    @GetMapping("/admin/home")
+    public String adminHome() {
+        return "admin-home";
+    }
+
+    @GetMapping("/hr/home")
+    public String hrHome() {
+        return "hr-home";
+    }
+
+    @GetMapping("/manager/home")
+    public String managerHome() {
+        return "manager-home";
+    }
+
+    @GetMapping("/employee/home")
+    public String employeeHome() {
+        return "employee-home";
     }
 }
