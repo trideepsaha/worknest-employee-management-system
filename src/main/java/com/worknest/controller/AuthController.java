@@ -51,10 +51,29 @@ public class AuthController {
     public String hrHome() {
         return "hr-home";
     }
-
+    
+    @GetMapping("/leaves/page")
+    public String leavesPage() {
+        return "leaves";
+    }
+    
     @GetMapping("/manager/home")
     public String managerHome() {
         return "manager-home";
+    }
+    
+    @GetMapping("/attendance")
+    public String attendancePage() {
+        return "attendance";
+    }
+    @GetMapping("/holidays/page")
+    public String holidaysPage() {
+        return "holidays";
+    }
+
+    @GetMapping("/notifications/page")
+    public String notificationsPage() {
+        return "notifications";
     }
 
     @GetMapping("/employee/home")
